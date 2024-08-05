@@ -1,0 +1,36 @@
+image: debian:latest
+
+stages:
+  - build
+
+variables:
+  AWS_REGION: ca-central-1
+  ECR_REGISTRY: 381492185710.dkr.ecr.$AWS_REGION.amazonaws.com
+  ECR_REPOSITORY: ecs-970728
+  CODEDEPLOY_APPLICATION: codedeploy-ecs-front-970728
+  CODEDEPLOY_DEPLOYMENT_GROUP: codedeploy-ecs-front-group-970728
+  S3_BUCKET_NAME: codedeploy-970728-frontend
+
+build:
+  stage: build
+  script:
+    - apt-get update && apt-get install -y curl jq python3 python3-pip unzip gnupg zip
+    - curl -fsSL https://get.docker.com -o get-docker.sh
+    - sh get-docker.sh
+    - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+    - unzip awscliv2.zip
+    - ./aws/install
+    - /usr/local/bin/aws --version
+    - /usr/local/bin/aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - /usr/local/bin/aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+    - /usr/local/bin/aws configure set default.region $AWS_REGION
+    - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+    - docker build -t $ECR_REPOSITORY:latest .
+    - docker tag $ECR_REPOSITORY:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
+    - docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+    - zip -r $CI_COMMIT_SHA.zip ./appspec.yml # appspec.yml과 배포 스크립트를 zip 파일로 묶음
+    - aws s3 cp $CI_COMMIT_SHA.zip s3://$S3_BUCKET_NAME/ # S3 버킷에 zip 파일 업로드
+    - aws deploy create-deployment --application-name $CODEDEPLOY_APPLICATION --deployment-config-name CodeDeployDefault.ECSAllAtOnce --deployment-group-name $CODEDEPLOY_DEPLOYMENT_GROUP --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$CI_COMMIT_SHA.zip
+
+  only:
+    - main
