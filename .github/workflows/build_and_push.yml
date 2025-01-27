@@ -13,7 +13,7 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME: my-backend
+      IMAGE_NAME: my-frontend
       IMAGE_TAG: ${{ github.sha }}
       HELM_CHART_PATH: charts/my-frontend
       DOCKER_IMAGE: jasonethicseo/my-frontend   # Docker Hub 이미지 이름 (예: jasonethicseo/vue-frontend)
