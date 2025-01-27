@@ -1,0 +1,17 @@
+image:
+  repository: acrmanoittest.azurecr.io/my-frontend   # ACR 리포지토리 이름
+  tag: "latest"
+
+replicaCount: 1
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
