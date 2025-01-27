@@ -41,7 +41,7 @@ jobs:
 
       - name: Update Kubernetes manifests with new image
         run: |
-          sed -i "s|image: .*|image: $DOCKER_IMAGE:$IMAGE_TAG|g" $HELM_CHART_PATH/templates/deployment.yaml
+          sed -i "s|image: .*|image: $DOCKER_IMAGE:$IMAGE_TAG|g" $HELM_CHART_PATH/templates/values.yaml
 
       - name: Commit and push updated manifests
         run: |
