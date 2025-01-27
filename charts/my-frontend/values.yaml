@@ -1,6 +1,6 @@
 image:
-  repository: acrmanoittest.azurecr.io/my-frontend   # ACR 리포지토리 이름
-  tag: "latest"
+  repository: jasonethicseo/my-frontend   # ACR 리포지토리 이름
+  tag: latest
 
 replicaCount: 1
 

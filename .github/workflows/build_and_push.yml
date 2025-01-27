@@ -1,4 +1,4 @@
-name: Build and Push Docker Image to Azure ACR
+name: Build and Push Docker Image to Docker Hub
 
 on:
   push:
@@ -8,14 +8,16 @@ on:
     branches:
       - dev
 
-env:
-  ACR_NAME: acrmanoittest       # ACR 이름 (전역적으로 고유해야 함)
-  IMAGE_NAME: vue-frontend      # 도커 이미지 이름
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-
+    env:
+      IMAGE_NAME: my-backend
+      IMAGE_TAG: ${{ github.sha }}
+      HELM_CHART_PATH: charts/my-frontend
+      DOCKER_IMAGE: jasonethicseo/my-frontend   # Docker Hub 이미지 이름 (예: jasonethicseo/vue-frontend)
+      
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -23,19 +25,28 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Login to Azure
-        uses: azure/login@v1
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Login to ACR
-        run: |
-          az acr login --name $ACR_NAME
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Build Docker image
         run: |
-          docker build -t $ACR_NAME.azurecr.io/$IMAGE_NAME:latest .
+          docker build -t $DOCKER_IMAGE:$IMAGE_TAG .
 
-      - name: Push Docker image to ACR
+      - name: Push Docker image to Docker Hub
         run: |
-          docker push $ACR_NAME.azurecr.io/$IMAGE_NAME:latest
+          docker push $DOCKER_IMAGE:$IMAGE_TAG
+
+      - name: Update Kubernetes manifests with new image
+        run: |
+          sed -i "s|image: .*|image: $DOCKER_IMAGE:$IMAGE_TAG|g" $HELM_CHART_PATH/templates/deployment.yaml
+
+      - name: Commit and push updated manifests
+        run: |
+          git config --local user.email "khuee@naver.com"
+          git config --local user.name "khuee"
+          git add $HELM_CHART_PATH/values.yaml
+          git commit -m "Update image to $DOCKER_IMAGE:$IMAGE_TAG"
+          git push
