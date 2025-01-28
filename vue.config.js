@@ -7,7 +7,7 @@ module.exports = defineConfig({
   devServer: {
     proxy: {
       "/api": {	
-        target: "http://internal-test-lb-ecs-back-970728-1145845113.ca-central-1.elb.amazonaws.com",
+        target: "http://my-backend.default.svc.cluster.local:8000",
         changeOrigin: true,
         // pathRewrite: { '^/api': '' },
       }
