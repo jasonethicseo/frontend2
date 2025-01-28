@@ -3,10 +3,11 @@ kind: Ingress
 metadata:
   name: frontend-ingress
   annotations:
-    # 필요시 추가 옵션 (예: 인증, 리라이트 등)
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
+  ingressClassName: nginx
   rules:
-  - host: my-frontend.local  # 로컬에서 /etc/hosts를 통해 접근
+  - host: my-frontend.local
     http:
       paths:
       - path: /
