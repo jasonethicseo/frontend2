@@ -1,6 +1,6 @@
 image:
   repository: jasonethicseo/my-frontend   # ACR 리포지토리 이름
-  tag: 5eec09fc3ece43866e23bce3c334ef21453a9121
+  tag: 30a7fe268f2a1e3f14965e39b906443b8740350c
 
 replicaCount: 1
 
