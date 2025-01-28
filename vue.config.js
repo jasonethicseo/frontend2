@@ -7,7 +7,7 @@ module.exports = defineConfig({
   devServer: {
     proxy: {
       "/api": {	
-        target: "http://my-backend.default.svc.cluster.local:8000",
+        target: "http://my-backend.default.svc.cluster.local:8080",
         changeOrigin: true,
         // pathRewrite: { '^/api': '' },
       }
